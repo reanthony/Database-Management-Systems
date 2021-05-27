@@ -1,0 +1,136 @@
+--Eland Anthony
+--CWID 11756007
+--CS301
+--02/19/21
+
+
+--ONE
+--A)
+SELECT DISTINCT ssn, fname, lname
+FROM employee, works_on
+WHERE pno = 10 AND dno != 5 AND ssn = essn;
+
+--B)
+SELECT DISTINCT ssn, fname, lname
+FROM employee JOIN works_on ON ssn = essn
+WHERE pno = 10 AND dno != 5;
+
+--C)
+SELECT DISTINCT ssn, fname, lname
+FROM employee JOIN works_on ON ssn = essn
+WHERE pno IN (
+  SELECT pno
+  FROM employee JOIN works_on ON essn = ssn
+  WHERE pno = 10
+)
+AND dno != 5;
+
+--D)
+SELECT DISTINCT ssn, fname, lname
+FROM employee JOIN works_on ON ssn = essn
+WHERE pno = ANY(
+  SELECT pno
+  FROM employee JOIN works_on ON essn = ssn
+  WHERE pno = 10
+)
+AND dno != 5;
+
+--E)
+SELECT DISTINCT ssn, fname, lname
+FROM employee JOIN works_on ON ssn = essn
+WHERE dno != 5 AND pno = 10 AND EXISTS(
+  SELECT DISTINCT ssn, fname, lname
+  FROM employee JOIN works_on ON ssn = essn
+  WHERE pno = 10 AND dno != 5
+);
+
+--F)
+SELECT DISTINCT ssn, fname, lname
+FROM (SELECT * FROM employee, works_on WHERE pno = 10 AND dno != 5 AND essn = ssn);
+
+--TWO
+SELECT ssn, fname, lname, works_on.hours FROM employee, works_on, project WHERE pno = pnumber AND essn = ssn AND project.pname = ('Computerization') AND employee.salary < 35000;
+
+--THREE
+--A)
+SELECT ssn, employee.salary FROM employee, works_on WHERE essn = ssn
+MINUS
+SELECT essn, employee.salary FROM employee, works_on WHERE works_on.pno = 1 OR works_on.pno = 10 ORDER BY salary DESC;
+
+--B)
+SELECT UNIQUE ssn, salary FROM employee, works_on WHERE essn = ssn AND ssn NOT IN (SELECT essn FROM employee, works_on WHERE works_on.pno = 1 OR works_on.pno = 10) ORDER BY salary DESC;
+
+--FOUR
+SELECT ssn, address
+FROM employee, dependent
+WHERE ssn = essn OR relationship = 'Daughter'
+GROUP BY ssn, address, relationship
+HAVING relationship = 'Son';
+
+--FIVE
+SELECT AVG(salary) as AVGSALDEPT5, MEDIAN(salary) as MEDSALDEPT5 FROM employee, department
+WHERE dno = dnumber AND dno = 5;
+
+--SIX
+SELECT COUNT(DISTINCT SUPERSSN) FROM employee;
+
+--SEVEN
+SELECT essn, pno, hours,
+CASE
+    WHEN pno = 30 then hours * 0
+    ELSE hours
+END as workedcorrected
+FROM works_on;
+
+--EIGHT
+
+--CREATE TABLE DeptName(dnum int, dname varchar(15));
+--INSERT into DeptName(SELECT dnumber, dname FROM department);
+
+--A) 
+SELECT * FROM deptname INNER JOIN Project ON deptname.dnum = project.dnum;
+
+--B) 
+SELECT * FROM deptname NATURAL JOIN Project;
+
+--NINE
+SELECT m.bdate, m.salary,
+       count(*)
+FROM employee w,
+     employee m
+WHERE w.superssn = m.ssn
+GROUP BY m.bdate, m.salary
+ORDER BY m.bdate ASC;
+
+--TEN)
+--A)
+SELECT Dname, Count(Pname)
+FROM Department NATURAL JOIN Project
+WHERE Dnum = Dnumber
+Group By Dname, Dnumber;
+
+--UPDATE project SET dnum = 5 WHERE pnumber = 20;
+
+--B)
+SELECT Dname, Count(Pname)
+FROM Department LEFT JOIN Project
+ON Dnum = Dnumber
+Group By Dname, Dnumber;
+
+--C)
+SELECT Dname, Count(Pname) 
+FROM Department LEFT JOIN Project
+ON Dnum = Dnumber
+Group By Dname
+HAVING Count(PNAME) < 2;
+
+--D)
+SELECT DISTINCT Dname, (
+  SELECT Count(Pnumber)
+  FROM project
+  WHERE Dnum = Dnumber
+)
+FROM Department NATURAL JOIN Project
+WHERE Dnum = Dnumber;
+
+

@@ -1,0 +1,63 @@
+		//Eland Anthony; CS301-Assignment6; Completed 03/29/21;
+		//One
+		db.HW6.find().count();
+		//Two
+		db.HW6.find({"type":"PublicEvent"}, {_id: 0}).pretty();	
+		//Three
+		db.HW6.find({}, {type:1, _id:1}).limit(5);
+		//Four
+		db.HW6.count({"type":"GollumEvent"});
+		//Five
+		db.HW6.find({"payload.release.author.login":"ewie"}, {_id: 0}).pretty();
+		//Six
+		var myCursor = db.HW6.find({"payload.release.author.login":"ewie"}, {_id: 0});
+		while (myCursor.hasNext()) {
+			printjson(myCursor.next());
+		}	
+		//Seven
+		db.HW6.find({}, {'payload.issue.labels.color': 1, _id: 0});	
+		//Eight
+		db.HW6.find({'payload.issue.labels.color':{$exists:true}}, {'payload.issue.labels.color': 1, _id: 0})
+		//Nine
+		db.HW6.distinct('actor.id').length;
+		//Ten
+			db.HW6.find( {
+		"$and": [
+				{ "payload.distinct_size": {$gt: 150 } },
+				{ "created_at": {$lte: '2015-01-01T15:16:27Z'} }
+			 ] }, {"payload.distinct_size":1, "created_at":1, _id:0} );
+		//Eleven
+		db.HW6.aggregate({$project: {"payload.distinct_size":1, "created_at":1, _id:0 }}, {$match: {"payload.distinct_size": {$gt: 150}, "created_at": {$lte: '2015-01-01T15:16:27Z'}}});
+		//Twelve
+		db.HW6.find( {
+		"$or": [
+				{ "payload.distinct_size": {$gt: 350 } },
+				{ "created_at": {$lte: '2015-01-01T15:00:01Z'} }
+			 ] }, {"payload.distinct_size":1, "created_at":1, _id:0} );
+		//Thirteen
+		db.HW6.find({}, {_id: 1}).sort({_id : -1}).limit(1);	
+		//Fourteen
+		db.HW6.find({},{"payload.commit":{$exists:true}, "payload.commit":{$slice:1}, _id:0, "payload.commit":1});
+		//Fifteen
+		db.HW6.aggregate([ 
+			{ "$group": { 
+				_id: "$type", 
+				"max": { $max: "$payload.pull_request.number" } 
+			}}
+		]);
+		//Sixteen
+		db.HW6.aggregate([ 
+		   { $match: { "payload.pull_request.number": { $exists: true} } }, 
+			{ "$group": { 
+				_id: "$type", 
+				"max": { "$max": "$payload.pull_request.number" } 
+			}}, 
+		   { $sort : {"max": -1}}
+		]);
+		//db.HW6.createIndex( { "payload.description": "text"} );
+		//Seventeen
+		db.HW6.find( { $text: { $search: "git-style Object Databases" } } ).count();	
+		//Eighteen
+		db.HW6.find( { $text: { $search: "\"object databases\"" } } ).count();
+
+
